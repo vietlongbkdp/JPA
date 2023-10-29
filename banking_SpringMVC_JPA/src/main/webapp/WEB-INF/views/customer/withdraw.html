@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>WithDraw</title>
+    <th:block th:replace="layout/head :: head"/>
+</head>
+<body>
+<div class="container">
+    <header>
+        <nav class="navbar bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand">WithDraw</a>
+                <div class="d-flex" style="gap: 10px;">
+                    <a href="/customers">
+                        <button class="btn btn-outline-light" type="button">
+                            <i class="fas fa-list-ul"></i>
+                            Customers list
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="content">
+        <form th:object="${withdraw}" method="post">
+            <div class="row mb-3 mt-3">
+                <div class="col-lg-6">
+                    <label for="fullName" class="form-label fw-bold">Full Name</label>
+                    <input type="text" class="form-control" id="fullName" th:field="*{customer.fullName}" readonly>
+                </div>
+                <div class="col-lg-6">
+                    <label for="email" class="form-label fw-bold">Email</label>
+                    <input type="email" class="form-control" id="email" th:field="*{customer.email}" readonly>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-6">
+                    <label for="balance" class="form-label fw-bold">Current balance</label>
+                    <input type="text" class="form-control" id="balance" th:field="*{customer.balance}" disabled>
+                </div>
+                <div class="col-lg-6">
+                    <label for="address" class="form-label fw-bold">Transaction amount</label>
+                    <input type="text" class="form-control" id="address" th:field="*{transactionAmount}">
+                </div>
+            </div>
+
+            <div class="row pt-3">
+                <div class="col-lg-3">
+                    <button type="submit" class="btn btn-outline-success">
+                        <i class="fas fa-minus"></i>
+                        WithDraw
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<th:block th:if="${success == true}">
+    <footer class="container-fluid success">
+        <div class="container">
+            <div class="notification">
+                <p class="success" th:text="${message}"></p>
+            </div>
+        </div>
+    </footer>
+</th:block>
+
+<th:block th:if="${success == false}">
+    <footer class="container-fluid error">
+        <div class="container">
+            <div class="notification">
+                <p class="error" th:text="${message}"></p>
+            </div>
+        </div>
+    </footer>
+</th:block>
+
+
+</body>
+</html>
