@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Transfer History</title>
+    <th:block th:replace="layout/head :: head" />
+</head>
+<body>
+<div class="container">
+    <header>
+        <nav class="navbar bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand">Transfer History</a>
+                <div class="d-flex" style="gap: 10px;">
+                    <a href="/customers">
+                        <button class="btn btn-outline-light" type="button">
+                            <i class="far fa-plus-square"></i>
+                            Show list customer
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="content">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Sender</th>
+                <th>Transfer Amount</th>
+                <th>Recipient</th>
+                <th>Fees</th>
+                <th>Date Transfer</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="item : ${transfers}">
+                <tr>
+                    <td th:text="${item.id}"></td>
+                    <td th:text="${item.sender.fullName}"></td>
+                    <td th:text="${item.transferAmount}"></td>
+                    <td th:text="${item.recipient.fullName}"></td>
+                    <td th:text="${item.fees}">%</td>
+                    <td th:text="${item.timeTransfer}"></td>
+                    <td>
+                        <a th:href="@{'/customers/delete_history/' + ${__item.id__}}">
+                            <button class="btn btn-outline-danger">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<th:block th:if="${success == true}">
+    <footer class="container-fluid success">
+        <div class="container">
+            <div class="notification">
+                <p class="success" th:text="${message}"></p>
+            </div>
+        </div>
+    </footer>
+</th:block>
+
+<th:block th:if="${success == false}">
+    <footer class="container-fluid error">
+        <div class="container">
+            <div class="notification">
+                <p class="error" th:text="${message}"></p>
+            </div>
+        </div>
+    </footer>
+</th:block>
+</body>
+</html>

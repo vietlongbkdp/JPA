@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,5 +35,7 @@ public class Transfer {
     private BigDecimal feesAmount;
     @Column(name = "transaction_amount", precision = 10, scale = 0, nullable = false)
     private BigDecimal transactionAmount;
+    @Column(nullable = false, unique = true, columnDefinition = "DATETIME")
+    private LocalDateTime timeTransfer;
     private Boolean deleted;
 }

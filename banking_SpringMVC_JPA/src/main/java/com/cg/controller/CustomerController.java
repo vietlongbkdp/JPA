@@ -4,7 +4,6 @@ import com.cg.model.Customer;
 import com.cg.model.Deposit;
 import com.cg.model.Transfer;
 import com.cg.model.Withdraw;
-import com.cg.repository.ICustomerRepository;
 import com.cg.service.CustomerService;
 import com.cg.service.DepositService;
 import com.cg.service.TransferService;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -156,6 +156,7 @@ public class CustomerController {
             transfer.setSender(sender);
             transfer.setFees(10L);
             transfer.setDeleted(false);
+            transfer.setTimeTransfer(LocalDateTime.now());
             transfer.setFeesAmount(transfer.getTransferAmount().multiply(BigDecimal.valueOf(0.1)));
             transfer.setTransactionAmount(transfer.getTransferAmount().multiply(BigDecimal.valueOf(1.1)));
             transferService.saveTransfer(transfer);
@@ -164,5 +165,16 @@ public class CustomerController {
             return "redirect:/customers";
         }
     }
-
+    @GetMapping("/transfer_history")
+    public String showTransferHistory(Model model){
+        model.addAttribute("transfers", transferService.findAllTransfer());
+        return "customer/transfer_history";
+    }
+    @GetMapping("/delete_history/{id}")
+    public String deleteTransferHistory(@PathVariable Long id,  RedirectAttributes redirectAttributes){
+        transferService.deleteTransfer(id);
+        redirectAttributes.addFlashAttribute("success", true);
+        redirectAttributes.addFlashAttribute("message", "Delete success");
+        return "redirect:/customers/transfer_history";
+    }
 }
