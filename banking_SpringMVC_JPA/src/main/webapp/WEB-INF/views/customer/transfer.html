@@ -45,7 +45,7 @@
             <div class="row mb-3">
                 <div class="col-lg-3">
                     <label class="form-label fw-bold">Recipient</label>
-                    <select class="form-select">
+                    <select class="form-select" name="recipientId">
                         <option th:each="item : ${recipients}" th:value="${item.id}" th:text="${'(' + item.id + ') ' + item.fullName}"></option>
                     </select>
                 </div>
@@ -55,7 +55,7 @@
                 </div>
                 <div class="col-lg-3">
                     <label for="fees" class="form-label fw-bold">Fees (%)</label>
-                    <input type="text" class="form-control" id="fees" th:field="*{fees}">
+                    <input type="text" class="form-control" id="fees" th:field="*{fees}" disabled>
                 </div>
                 <div class="col-lg-3">
                     <label for="transactionAmount" class="form-label fw-bold">Transaction amount</label>

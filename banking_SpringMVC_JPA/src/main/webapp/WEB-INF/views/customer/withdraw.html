@@ -23,7 +23,7 @@
     </header>
 
     <div class="content">
-        <form th:object="${withdraw}" method="post">
+        <form th:object="${withdraw}" th:action="@{/customers/withdraw}" method="post">
             <div class="row mb-3 mt-3">
                 <div class="col-lg-6">
                     <label for="fullName" class="form-label fw-bold">Full Name</label>

@@ -2,9 +2,12 @@ package com.cg.controller;
 
 import com.cg.model.Customer;
 import com.cg.model.Deposit;
+import com.cg.model.Transfer;
+import com.cg.model.Withdraw;
 import com.cg.repository.ICustomerRepository;
 import com.cg.service.CustomerService;
 import com.cg.service.DepositService;
+import com.cg.service.TransferService;
 import com.cg.service.WithdrawService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +28,8 @@ public class CustomerController {
     private DepositService depositService;
     @Autowired
     private WithdrawService withdrawService;
-
+    @Autowired
+    private TransferService transferService;
     @GetMapping
     public String showList(Model model){
         model.addAttribute("customers", customerService.findAll());
@@ -88,8 +92,8 @@ public class CustomerController {
     @PostMapping("deposit")
     public String deposit(@ModelAttribute Deposit deposit,RedirectAttributes redirectAttributes){
         if(deposit.getTransactionAmount().compareTo(BigDecimal.ZERO) <=0){
-            redirectAttributes.addAttribute("success", false);
-            redirectAttributes.addAttribute("message", "Deposit unsuccessfully");
+            redirectAttributes.addFlashAttribute("success", false);
+            redirectAttributes.addFlashAttribute("message", "Deposit unsuccessfully");
             return "redirect:/customers";
         }else {
             customerService.deposit(deposit);
@@ -97,6 +101,68 @@ public class CustomerController {
             redirectAttributes.addFlashAttribute("message", "Deposit successfully");
             return "redirect:/customers";
         }
-
     }
+    @GetMapping("/withdraw/{id}")
+    public String showWithdraw(@PathVariable Long id, Model model){
+        List<Customer> customers = customerService.findAll();
+        Customer customer = customers.stream().filter(customer1 -> customer1.getId() == id).findFirst().orElse(null);
+        Withdraw withdraw = new Withdraw();
+        withdraw.setCustomer(customer);
+        model.addAttribute("withdraw", withdraw);
+        return "/customer/withdraw";
+    }
+    @PostMapping("/withdraw")
+    public String withdraw(@ModelAttribute Withdraw withdraw, RedirectAttributes redirectAttributes){
+        Customer customer = customerService.getByEmail(withdraw.getCustomer().getEmail());
+        if(withdraw.getTransactionAmount().compareTo(BigDecimal.ZERO) <= 0|| withdraw.getTransactionAmount().compareTo(customer.getBalance()) > 0){
+            redirectAttributes.addFlashAttribute("success", false);
+            redirectAttributes.addFlashAttribute("message", "Withdraw unsuccessfully");
+            return "redirect:/customers";
+        }else {
+            customerService.withdraw(withdraw);
+            redirectAttributes.addFlashAttribute("success", true);
+            redirectAttributes.addFlashAttribute("message", "Withdraw successfully");
+            return "redirect:/customers";
+        }
+    }
+    @GetMapping("/transfer/{id}")
+    public String showTransfer(@PathVariable Long id, Model model){
+        List<Customer> customers = customerService.findAll();
+        Customer sender = customers.stream().filter(customer1 -> customer1.getId() == id).findFirst().orElse(null);
+        List<Customer> recipients = customerService.findAllWithout(id);
+        Transfer transfer = new Transfer();
+        transfer.setSender(sender);
+        transfer.setFees(10L);
+        model.addAttribute("transfer", transfer);
+        model.addAttribute("recipients", recipients);
+        return "customer/transfer";
+    }
+    @PostMapping("/transfer")
+    public String transfer(@ModelAttribute Transfer transfer, RedirectAttributes redirectAttributes, @RequestParam Long recipientId){
+        Customer sender = customerService.getByEmail(transfer.getSender().getEmail());
+        Customer recipient = customerService.findById(recipientId);
+        if(transfer.getTransactionAmount().compareTo(BigDecimal.ZERO) <=0 || transfer.getTransactionAmount().compareTo(sender.getBalance()) >0){
+            redirectAttributes.addFlashAttribute("success", false);
+            redirectAttributes.addFlashAttribute("message", "Transfer Unsuccessfully");
+            return "redirect:/customers";
+        }else {
+            BigDecimal newSenderBalance = sender.getBalance().subtract(transfer.getTransactionAmount());
+            sender.setBalance(newSenderBalance);
+            customerService.updateCustomer(sender);
+            BigDecimal newRecipient = recipient.getBalance().add(transfer.getTransferAmount());
+            recipient.setBalance(newRecipient);
+            customerService.updateCustomer(recipient);
+            transfer.setRecipient(recipient);
+            transfer.setSender(sender);
+            transfer.setFees(10L);
+            transfer.setDeleted(false);
+            transfer.setFeesAmount(transfer.getTransferAmount().multiply(BigDecimal.valueOf(0.1)));
+            transfer.setTransactionAmount(transfer.getTransferAmount().multiply(BigDecimal.valueOf(1.1)));
+            transferService.saveTransfer(transfer);
+            redirectAttributes.addFlashAttribute("success", true);
+            redirectAttributes.addFlashAttribute("message", "Transfer Successfully");
+            return "redirect:/customers";
+        }
+    }
+
 }
