@@ -80,7 +80,8 @@
 
                     </td>
                     <td>
-                        <a th:href="@{'/customers/delete/' + ${__item.id__}}">
+                        <a  th:href="@{'/customers/delete/' + ${__item.id__}}">
+<!--                            <a  th:onclick="|showConfirm(${item.id})|">-->
                             <button class="btn btn-outline-danger">
                                 <i class="fas fa-ban"></i>
                             </button>
